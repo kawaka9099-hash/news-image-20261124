@@ -1,38 +1,28 @@
-#!/usr/bin/env python3
-"""Entry point for the make.fun news-image-20261124 submission.
+"""Hand the finished front-page image to the grader.
 
-Standard library only. Copies the pre-rendered front page (entry.png,
-bundled next to this file) to the output path the grader asks for:
+This script does no drawing. The picture (entry.png) is already rendered
+and lives next to this file; the only job here is to place a copy of it
+where the grader collects outputs.
 
-  1. argv[1] when given,
-  2. else $MAKEFUN_OUTPUT_DIR/entry.png,
-  3. else /output/entry.png.
+The destination directory comes from the MAKEFUN_OUTPUT_DIR environment
+variable and falls back to /output when that variable is not set. The
+directory is created if it does not exist yet, and nothing else in it is
+touched.
 """
+
 import os
 import shutil
-import sys
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "entry.png")
+from pathlib import Path
 
 
-def output_path():
-    if len(sys.argv) > 1:
-        return sys.argv[1]
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR")
-    if out_dir:
-        return os.path.join(out_dir, "entry.png")
-    return "/output/entry.png"
-
-
-def main():
-    dest = output_path()
-    parent = os.path.dirname(dest)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
-    shutil.copyfile(SRC, dest)
-    print("wrote", dest)
+def main() -> int:
+    here = Path(__file__).resolve().parent
+    source = here / "entry.png"
+    out_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, out_dir / "entry.png")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
